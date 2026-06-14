@@ -5,9 +5,18 @@
 
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Interaction/HighlightItem.h"
+
 AAuraPlayerController::AAuraPlayerController()
 {
 	bReplicates = true;
+}
+
+void AAuraPlayerController::PlayerTick(float DeltaTime)
+{
+	Super::PlayerTick(DeltaTime);
+	
+	CursurTrace();
 }
 
 void AAuraPlayerController::BeginPlay()
@@ -52,5 +61,46 @@ void AAuraPlayerController::Move(const struct FInputActionValue& InputActionValu
 	{
 		controlledPawn->AddMovementInput(forwardDir, inputAxisVector.Y);
 		controlledPawn->AddMovementInput(rightDir, inputAxisVector.X);
+	}
+}
+
+
+void AAuraPlayerController::CursurTrace()
+{
+	FHitResult CursorHit;
+	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
+	if (!CursorHit.bBlockingHit) return;
+	
+	LastActor = ThisActor;
+	ThisActor = CursorHit.GetActor();
+	
+	/** 
+	 * Line trace for cursor, different scenarios
+	 * Last and this null -> nothing
+	 * Last null but This valid -> highlight this
+	 * Last valid but This null -> unhighlight Last
+	 * Last and this valid but != -> unhighlight Last and Highlight This
+	 * Last and This valid but == -> do nothing should be still highlighted
+	 */
+	
+	if(LastActor == nullptr)
+	{
+		if (ThisActor != nullptr)
+		{
+			ThisActor->HighlightActor();
+		}
+	}else
+	{
+		if (ThisActor == nullptr)
+		{
+			LastActor->UnHighlightActor();
+		}else
+		{
+			if (LastActor != ThisActor)
+			{
+				LastActor->UnHighlightActor();
+				ThisActor->HighlightActor();
+			}
+		}
 	}
 }
