@@ -14,10 +14,10 @@ public class Aura : ModuleRules
 			"CoreUObject", 
 			"Engine", 
 			"InputCore", 
-			"EnhancedInput"
+			"EnhancedInput",
+			"GameplayAbilities"// ← UAbilitySystemComponent lives here
 		});
 		PrivateDependencyModuleNames.AddRange(new string[] { 		
-			"GameplayAbilities", // ← UAbilitySystemComponent lives here
 			"GameplayTasks", // ← UGameplayTasksComponent lives here (parent of ASC)
 			"GameplayTags" // ← Almost always needed with GAS
 		});
